@@ -12,21 +12,9 @@
 	<artifactId>lenguajesP3</artifactId>
 	
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+	<name>lenguajesP3</name>
+	<description>Proyecto de Lenguaje de Programación 3</description>
+
 	<properties>
 		<java.version>25</java.version>
 	</properties>
