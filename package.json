@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "predev": "npx kill-port 8080",
     "dev:backend": "cd backend && mvnw.cmd spring-boot:run",
-    "dev:frontend": "pnpm run dev --prefix frontend",
+    "dev:frontend": "pnpm -C frontend run dev",
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"pnpm run dev:backend\" \"pnpm run dev:frontend\""
   },
   "devDependencies": {
