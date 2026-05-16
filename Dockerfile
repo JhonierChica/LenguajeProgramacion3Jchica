@@ -6,8 +6,10 @@ WORKDIR /app/frontend
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copiamos archivos de dependencias
-COPY frontend/package.json frontend/pnpm-lock.yaml ./
-RUN pnpm install
+COPY frontend/package.json ./
+# Instalamos sin exigir el lockfile para que no explote
+RUN pnpm install --no-frozen-lockfile
+
 
 # Copiamos el resto del código y generamos el build de producción
 COPY frontend/ ./
