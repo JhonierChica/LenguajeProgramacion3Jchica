@@ -1,19 +1,17 @@
 # ETAPA 1: Construcción del Frontend (Node)
-FROM node:20-alpine AS frontend-build
+# Usamos la imagen completa de Node 20 (no alpine) para mayor compatibilidad
+FROM node:20 AS frontend-build
 WORKDIR /app/frontend
 
-# Instalamos pnpm (usando corepack para asegurar la versión correcta)
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
 # Copiamos archivos de dependencias
-COPY frontend/package.json ./
-# Instalamos sin exigir el lockfile para que no explote
-RUN pnpm install --no-frozen-lockfile
+COPY frontend/package.json frontend/package-lock.json* ./
 
+# Instalamos usando npm (es más estable para el entorno de build de Render)
+RUN npm install
 
 # Copiamos el resto del código y generamos el build de producción
 COPY frontend/ ./
-RUN pnpm build
+RUN npm run build
 
 # ETAPA 2: Construcción del Backend (Maven + Java)
 FROM maven:3.9-eclipse-temurin-25 AS backend-build
