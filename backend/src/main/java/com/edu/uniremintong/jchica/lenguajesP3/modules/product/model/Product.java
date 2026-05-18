@@ -20,14 +20,8 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description")
-    private String description;
-
     @Column(name = "price", nullable = false)
     private BigDecimal price;
-
-    @Column(name = "stock", nullable = false)
-    private Integer stock;
 
     @Column(name = "available", nullable = false)
     private Boolean available = true;

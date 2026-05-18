@@ -25,8 +25,8 @@ public class OrderService {
     private final ProductRepository productRepository;
 
     public OrderService(OrderRepository orderRepository,
-                        CustomerRepository customerRepository,
-                        ProductRepository productRepository) {
+            CustomerRepository customerRepository,
+            ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
@@ -85,13 +85,8 @@ public class OrderService {
             orderItem.setUnitPrice(product.getPrice());
 
             savedOrder.addItem(orderItem);
-            
-            // Opcional: Reducir stock (siguiendo buena práctica aunque el original no lo hacía explícito en createOrder)
-            if (product.getStock() < itemRequest.getQuantity()) {
-                throw new RuntimeException("Not enough stock for product: " + product.getName());
-            }
-            product.setStock(product.getStock() - itemRequest.getQuantity());
-            productRepository.save(product);
+
+
         }
 
         return mapToResponse(savedOrder);
@@ -109,6 +104,12 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
         return mapToResponse(order);
+    }
+
+    public void deleteOrder(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+        orderRepository.delete(order);
     }
 
     private OrderResponse mapToResponse(Order order) {
