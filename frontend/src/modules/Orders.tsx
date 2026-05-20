@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { api } from "@/lib/api"
 import type { Order, Customer, Product } from "@/types/index"
 import { toast } from "sonner"
-import { Plus, Loader2, ClipboardList, CheckCircle2, AlertCircle, ShoppingCart, Trash2 } from "lucide-react"
+import { Plus, Loader2, ClipboardList, CheckCircle2, AlertCircle, ShoppingCart, Trash2, UserCheck } from "lucide-react"
 
 export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -145,7 +145,7 @@ export default function Orders() {
               <Plus className="mr-2 h-4 w-4 stroke-[3px]" /> NUEVA ORDEN
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-3xl max-w-md p-6 sm:p-8 border border-slate-100">
+          <DialogContent className="rounded-3xl max-w-md p-5 sm:p-8 border border-slate-100 max-h-[90vh] overflow-y-auto w-[calc(100%-2rem)] sm:w-full">
             <DialogHeader className="mb-4">
               <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-slate-800 flex items-center gap-2">
                 Nueva Orden
@@ -183,9 +183,9 @@ export default function Orders() {
                   </Button>
                 </div>
 
-                <div className="space-y-3 max-h-[180px] overflow-y-auto pr-1">
+                <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
                   {form.items.map((item, index) => (
-                    <div key={index} className="flex gap-2 items-center bg-slate-50/50 p-2 rounded-2xl border border-slate-200 font-sans">
+                    <div key={index} className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center bg-slate-50/50 p-3 sm:p-2 rounded-2xl border border-slate-200 font-sans">
                       {/* Product Selector */}
                       <div className="flex-1">
                         <select
@@ -203,29 +203,31 @@ export default function Orders() {
                         </select>
                       </div>
 
-                      {/* Quantity Input */}
-                      <div className="w-16">
-                        <Input 
-                          type="number" 
-                          min="1"
-                          value={item.quantity} 
-                          onChange={e => updateProductRow(index, "quantity", Math.max(1, +e.target.value))} 
-                          className="h-10 font-black text-xs px-2 rounded-xl border border-slate-200 focus:border-primary transition-all bg-white text-center outline-none"
-                          required 
-                        />
-                      </div>
+                      {/* Quantity & Delete Button Group */}
+                      <div className="flex gap-2 items-center justify-between sm:justify-start">
+                        <div className="flex items-center gap-1.5 flex-1 sm:flex-initial">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest sm:hidden">CANT:</span>
+                          <Input 
+                            type="number" 
+                            min="1"
+                            value={item.quantity} 
+                            onChange={e => updateProductRow(index, "quantity", Math.max(1, +e.target.value))} 
+                            className="h-10 w-16 font-black text-xs px-2 rounded-xl border border-slate-200 focus:border-primary transition-all bg-white text-center outline-none flex-1 sm:flex-none"
+                            required 
+                          />
+                        </div>
 
-                      {/* Delete Row Button */}
-                      {form.items.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={() => removeProductRow(index)}
-                          className="h-10 w-10 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
+                        {form.items.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => removeProductRow(index)}
+                            className="h-10 w-10 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl shrink-0"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -288,94 +290,189 @@ export default function Orders() {
           </div>
         </div>
       ) : (
-        <Card className="rounded-3xl border border-slate-100 shadow-sm bg-white overflow-hidden">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-slate-50/70 border-b border-slate-100">
-                  <TableRow>
-                    <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5 pl-8">ID Transacción</TableHead>
-                    <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5">Cliente</TableHead>
-                    <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5">Monto Total</TableHead>
-                    <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5">Notas</TableHead>
-                    <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5 pr-8">Estado de Orden</TableHead>
-                    <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5 pr-8 text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orders.map(o => {
-                    const isPending = o.status === "PENDIENTE" || o.status === "PENDING"
-                    return (
-                      <TableRow key={o.id} className="hover:bg-slate-50/50 transition-colors group border-b border-slate-100/60">
-                        <TableCell className="font-black text-xs text-slate-400 py-5 pl-8">#{o.id}</TableCell>
-                        <TableCell className="font-bold text-slate-700 py-5">
-                          {o.customerName ? (
-                            <div className="flex flex-col">
-                              <span className="font-bold text-slate-800">{o.customerName}</span>
-                              <span className="text-[10px] text-slate-400 font-bold">ID: #{o.customerId}</span>
-                            </div>
+        <>
+          {/* Card view for mobile/tablet */}
+          <div className="block lg:hidden space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {orders.map(o => {
+                const isPending = o.status === "PENDIENTE" || o.status === "PENDING";
+                return (
+                  <Card 
+                    key={o.id}
+                    className="group overflow-hidden border border-slate-100 hover:border-primary/40 rounded-3xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] flex flex-col"
+                  >
+                    {/* Card Title & Status Badge */}
+                    <div className="flex flex-row items-center justify-between p-6 border-b border-slate-50 bg-slate-50/30">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-primary/10 text-primary rounded-xl shrink-0 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                          <ShoppingCart className="h-4.5 w-4.5" />
+                        </div>
+                        <span className="text-md font-black uppercase tracking-tight text-slate-700">Orden #{o.id}</span>
+                      </div>
+                      
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                        isPending 
+                          ? "bg-amber-50 text-amber-600 border border-amber-200/50" 
+                          : "bg-emerald-50 text-emerald-600 border border-emerald-200/50"
+                      }`}>
+                        {isPending ? <AlertCircle className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
+                        {o.status}
+                      </span>
+                    </div>
+
+                    {/* Card Content */}
+                    <CardContent className="p-6 flex-1 flex flex-col justify-between space-y-6">
+                      <div className="bg-slate-50 p-4 rounded-2xl space-y-3.5 flex-1">
+                        {/* Customer Info */}
+                        <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100/50 shadow-inner">
+                          <UserCheck className="h-4 w-4 text-primary shrink-0" />
+                          <div className="flex flex-col truncate">
+                            <span className="text-xs text-slate-700 font-black uppercase truncate">{o.customerName || `Cliente #${o.customerId}`}</span>
+                            <span className="text-[9px] text-slate-400 font-bold">ID CLIENTE: #{o.customerId}</span>
+                          </div>
+                        </div>
+
+                        {/* Notes Info */}
+                        <div className="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100/50 shadow-inner min-h-[64px]">
+                          <ClipboardList className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                          <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Notas / Observaciones</span>
+                            <span className="text-xs text-slate-500 font-medium break-words">
+                              {o.notes || <span className="text-slate-300 italic">Ninguna</span>}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Price & Actions Row */}
+                      <div className="w-full h-px bg-slate-100" />
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total de la Orden</span>
+                          <span className="text-lg font-black text-primary">${o.totalAmount?.toLocaleString("es-CO") || 0}</span>
+                        </div>
+                        
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          disabled={deletingId === o.id}
+                          onClick={() => handleDeleteOrder(o.id)}
+                          className="h-10 w-10 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 hover:border-rose-100 transition-all cursor-pointer shrink-0"
+                        >
+                          {deletingId === o.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
-                            `Cliente #${o.customerId}`
+                            <Trash2 className="h-4 w-4" />
                           )}
-                        </TableCell>
-                        <TableCell className="font-black text-sm text-primary py-5">
-                          ${o.totalAmount?.toLocaleString("es-CO") || 0}
-                        </TableCell>
-                        <TableCell className="text-xs text-slate-500 font-medium py-5">
-                          {o.notes || <span className="text-slate-300 italic">Ninguna</span>}
-                        </TableCell>
-                        <TableCell className="py-5 pr-8">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                            isPending 
-                              ? "bg-amber-50 text-amber-600 border border-amber-200/50" 
-                              : "bg-emerald-50 text-emerald-600 border border-emerald-200/50"
-                          }`}>
-                            {isPending ? (
-                              <>
-                                <AlertCircle className="h-3 w-3" />
-                                {o.status}
-                              </>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {orders.length === 0 && (
+              <div className="text-center py-24 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                <div className="flex flex-col items-center gap-3">
+                  <ShoppingCart className="h-10 w-10 text-slate-300 stroke-[1.5]" />
+                  <span className="text-sm font-medium text-slate-400">No hay transacciones registradas actualmente.</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <Card className="hidden lg:block rounded-3xl border border-slate-100 shadow-sm bg-white overflow-hidden">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="bg-slate-50/70 border-b border-slate-100">
+                    <TableRow>
+                      <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5 pl-8">ID Transacción</TableHead>
+                      <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5">Cliente</TableHead>
+                      <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5">Monto Total</TableHead>
+                      <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5">Notas</TableHead>
+                      <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5 pr-8">Estado de Orden</TableHead>
+                      <TableHead className="text-xs font-black text-slate-500 uppercase tracking-widest py-5 pr-8 text-right">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {orders.map(o => {
+                      const isPending = o.status === "PENDIENTE" || o.status === "PENDING"
+                      return (
+                        <TableRow key={o.id} className="hover:bg-slate-50/50 transition-colors group border-b border-slate-100/60">
+                          <TableCell className="font-black text-xs text-slate-400 py-5 pl-8">#{o.id}</TableCell>
+                          <TableCell className="font-bold text-slate-700 py-5">
+                            {o.customerName ? (
+                              <div className="flex flex-col">
+                                <span className="font-bold text-slate-800">{o.customerName}</span>
+                                <span className="text-[10px] text-slate-400 font-bold">ID: #{o.customerId}</span>
+                              </div>
                             ) : (
-                              <>
-                                <CheckCircle2 className="h-3 w-3" />
-                                {o.status}
-                              </>
+                              `Cliente #${o.customerId}`
                             )}
-                          </span>
-                        </TableCell>
-                        <TableCell className="py-5 pr-8 text-right">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            disabled={deletingId === o.id}
-                            onClick={() => handleDeleteOrder(o.id)}
-                            className="h-9 w-9 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
-                          >
-                            {deletingId === o.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4" />
-                            )}
-                          </Button>
+                          </TableCell>
+                          <TableCell className="font-black text-sm text-primary py-5">
+                            ${o.totalAmount?.toLocaleString("es-CO") || 0}
+                          </TableCell>
+                          <TableCell className="text-xs text-slate-500 font-medium py-5">
+                            {o.notes || <span className="text-slate-300 italic">Ninguna</span>}
+                          </TableCell>
+                          <TableCell className="py-5 pr-8">
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                              isPending 
+                                ? "bg-amber-50 text-amber-600 border border-amber-200/50" 
+                                : "bg-emerald-50 text-emerald-600 border border-emerald-200/50"
+                            }`}>
+                              {isPending ? (
+                                <>
+                                  <AlertCircle className="h-3 w-3" />
+                                  {o.status}
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  {o.status}
+                                </>
+                              )}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-5 pr-8 text-right">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              disabled={deletingId === o.id}
+                              onClick={() => handleDeleteOrder(o.id)}
+                              className="h-9 w-9 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
+                            >
+                              {deletingId === o.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                    {orders.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="py-16 text-center text-slate-400 font-medium text-sm">
+                          <div className="flex flex-col items-center gap-3">
+                            <ShoppingCart className="h-10 w-10 text-slate-300 stroke-[1.5]" />
+                            <span>No hay transacciones registradas actualmente.</span>
+                          </div>
                         </TableCell>
                       </TableRow>
-                    )
-                  })}
-                  {orders.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="py-16 text-center text-slate-400 font-medium text-sm">
-                        <div className="flex flex-col items-center gap-3">
-                          <ShoppingCart className="h-10 w-10 text-slate-300 stroke-[1.5]" />
-                          <span>No hay transacciones registradas actualmente.</span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </>
       )}
     </div>
   )
