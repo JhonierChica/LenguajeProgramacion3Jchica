@@ -86,7 +86,6 @@ public class OrderService {
 
             savedOrder.addItem(orderItem);
 
-
         }
 
         return mapToResponse(savedOrder);
@@ -110,6 +109,14 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
         orderRepository.delete(order);
+    }
+
+    public OrderResponse updateOrder(Long id, CreateOrderRequest request) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+        order.setNotes(request.getNotes());
+        Order savedOrder = orderRepository.save(order);
+        return mapToResponse(savedOrder);
     }
 
     private OrderResponse mapToResponse(Order order) {

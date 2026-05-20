@@ -25,13 +25,15 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    public List<Customer> getAll() {
-        return customerService.getAllCustomers();
+    public ResponseEntity<List<Customer>> getAll() {
+        List<Customer> customers = customerService.getAllCustomers();
+        return ResponseEntity.status(HttpStatus.OK).body(customers);
     }
 
     @GetMapping("/{id}")
-    public Customer getCustomerById(@PathVariable Long id) {
-        return customerService.getCustomerById(id);
+    public ResponseEntity<Customer> getCustomerById(@PathVariable Long id) {
+        Customer customer = customerService.getCustomerById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(customer);
     }
 
     @PostMapping

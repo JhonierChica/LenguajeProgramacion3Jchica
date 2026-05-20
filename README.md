@@ -8,7 +8,7 @@ Sistema web full-stack para gestión de pedidos, clientes y productos de una tie
 |------|------------|
 | **Frontend** | React 19 + TypeScript + Vite + TailwindCSS 4 |
 | **Backend** | Spring Boot 3 (Java 17) + Spring Data JPA |
-| **Base de datos** | H2 (en memoria, configurable) |
+| **Base de datos** | PostgreSQL (db_restaurant) |
 | **Package Manager** | pnpm (raíz) + Maven (backend) |
 
 ## Estructura del Proyecto
@@ -222,7 +222,7 @@ await api.delete(`/products/${id}`);
 3. `api.ts` hace `fetch()` al endpoint REST correspondiente
 4. El Controller de Spring Boot procesa la petición
 5. El Service ejecuta la lógica de negocio
-6. El Repository interactúa con la base de datos H2
+6. El Repository interactúa con la base de datos PostgreSQL
 7. La respuesta JSON vuelve al frontend y actualiza el estado
 
 ---
