@@ -14,6 +14,7 @@ export default function Products() {
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<Product>({ name: "", price: 0, available: true })
+  const [priceInput, setPriceInput] = useState<string>("")
   const [editId, setEditId] = useState<number | null>(null)
 
   const fetchProducts = async () => {
@@ -37,12 +38,18 @@ export default function Products() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const normalizedPrice = priceInput.trim() === "" ? NaN : Number(priceInput)
+    if (!Number.isFinite(normalizedPrice) || normalizedPrice < 0) {
+      toast.warning("Ingrese un precio válido")
+      return
+    }
+    const payload: Product = { ...form, price: normalizedPrice }
     try {
       if (editId) {
-        await api.put(`/products/${editId}`, form)
+        await api.put(`/products/${editId}`, payload)
         toast.success("Producto actualizado")
       } else {
-        await api.post<Product>("/products", form)
+        await api.post<Product>("/products", payload)
         toast.success("Producto creado")
       }
       setOpen(false)
@@ -55,6 +62,7 @@ export default function Products() {
 
   const handleEdit = (p: Product) => {
     setForm(p)
+    setPriceInput(p.price !== undefined ? String(p.price) : "")
     setEditId(p.id!)
     setOpen(true)
   }
@@ -72,6 +80,7 @@ export default function Products() {
 
   const resetForm = () => {
     setForm({ name: "", price: 0, available: true })
+    setPriceInput("")
     setEditId(null)
   }
 
@@ -120,8 +129,8 @@ export default function Products() {
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
                   <Input 
                     type="number" 
-                    value={form.price} 
-                    onChange={e => setForm({ ...form, price: +e.target.value })} 
+                    value={priceInput} 
+                    onChange={e => setPriceInput(e.target.value)} 
                     className="h-14 font-bold text-md pl-8 pr-4 rounded-2xl border border-slate-200 focus:border-primary transition-all bg-slate-50/50 focus:bg-white outline-none"
                     required 
                   />

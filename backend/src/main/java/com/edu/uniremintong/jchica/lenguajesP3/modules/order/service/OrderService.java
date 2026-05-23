@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,7 +70,7 @@ public class OrderService {
         order.setCustomer(customer);
         order.setTotalAmount(totalAmount);
         order.setNotes(request.getNotes());
-        order.setStatus("PENDIENTE");
+        order.setStatus(resolveStatus(request.getStatus()));
 
         // Guardar para obtener ID
         Order savedOrder = orderRepository.save(order);
@@ -114,9 +115,72 @@ public class OrderService {
     public OrderResponse updateOrder(Long id, CreateOrderRequest request) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+
+        // 1. Validate Customer
+        Customer customer = customerRepository.findById(request.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomerId()));
+        order.setCustomer(customer);
+
+        // 2. Validate Items
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new RuntimeException("Order must have at least one item");
+        }
+
+        // 3. Pre-fetch products to prevent N+1
+        List<Long> productIds = request.getItems().stream()
+                .map(OrderItemRequest::getProductId)
+                .collect(Collectors.toList());
+        Map<Long, Product> productMap = productRepository.findAllById(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+
+        // 4. Validate products and calculate total
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        for (OrderItemRequest itemRequest : request.getItems()) {
+            Product product = productMap.get(itemRequest.getProductId());
+            if (product == null) {
+                throw new RuntimeException("Product not found with id: " + itemRequest.getProductId());
+            }
+            if (!product.getAvailable()) {
+                throw new RuntimeException("Product is not available: " + product.getName());
+            }
+            BigDecimal itemSubtotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
+            totalAmount = totalAmount.add(itemSubtotal);
+        }
+
+        order.setTotalAmount(totalAmount);
         order.setNotes(request.getNotes());
+        if (request.getStatus() != null) {
+            order.setStatus(resolveStatus(request.getStatus()));
+        }
+
+        // 5. Clear old items and add the new ones
+        order.getItems().clear();
+        for (OrderItemRequest itemRequest : request.getItems()) {
+            Product product = productMap.get(itemRequest.getProductId());
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProduct(product);
+            orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setUnitPrice(product.getPrice());
+
+            order.addItem(orderItem);
+        }
+
         Order savedOrder = orderRepository.save(order);
         return mapToResponse(savedOrder);
+    }
+
+    private String resolveStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "PENDIENTE";
+        }
+        String normalized = status.trim().toUpperCase();
+        Set<String> allowed = Set.of("PENDIENTE", "SERVIDO", "PAGADO");
+        if (!allowed.contains(normalized)) {
+            throw new RuntimeException("Invalid order status: " + status);
+        }
+        return normalized;
     }
 
     private OrderResponse mapToResponse(Order order) {

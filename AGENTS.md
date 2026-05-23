@@ -4,7 +4,7 @@
 
 ## Resumen del Proyecto
 
-Sistema web full-stack para gestión de pedidos de una tienda universitaria ("Tienda JChica").
+Sistema web full-stack para gestión de pedidos de una tienda universitaria ("Tienda ").
 Incluye CRUD completo para **Órdenes**, **Clientes** y **Productos**.
 
 **Autor:** Jhonier Chica

@@ -8,4 +8,5 @@ public class CreateOrderRequest {
     private Long customerId;
     private List<OrderItemRequest> items;
     private String notes;
+    private String status;
 }

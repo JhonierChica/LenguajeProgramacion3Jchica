@@ -2,13 +2,14 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent } from "@/components/ui/card"
 import { api } from "@/lib/api"
-import type { Order, Customer, Product } from "@/types/index"
+import type { Order, Customer, Product, OrderStatus } from "@/types/index"
 import { toast } from "sonner"
-import { Plus, Loader2, ClipboardList, CheckCircle2, AlertCircle, ShoppingCart, Trash2, UserCheck } from "lucide-react"
+import { Plus, Loader2, ClipboardList, CheckCircle2, AlertCircle, ShoppingCart, Trash2, UserCheck, Pencil } from "lucide-react"
 
 export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -16,8 +17,10 @@ export default function Orders() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(false)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [open, setOpen] = useState(false)
-  const [form, setForm] = useState<Order>({ customerId: 0, items: [{ productId: 0, quantity: 1 }], notes: "" })
+  const [statusFilter, setStatusFilter] = useState<"TODAS" | OrderStatus>("TODAS")
+  const [form, setForm] = useState<Order>({ customerId: 0, items: [{ productId: 0, quantity: 1 }], notes: "", status: "PENDIENTE" })
 
   const fetchOrders = async () => {
     setLoading(true)
@@ -38,7 +41,7 @@ export default function Orders() {
         api.get<Product[]>("/products")
       ])
       setCustomers(customersData)
-      setProducts(productsData.filter(p => p.available !== false))
+      setProducts(productsData)
     } catch {
       toast.error("Error al cargar opciones de clientes o productos")
     }
@@ -53,7 +56,7 @@ export default function Orders() {
   }, [])
 
   const resetForm = () => {
-    setForm({ customerId: 0, items: [{ productId: 0, quantity: 1 }], notes: "" })
+    setForm({ customerId: 0, items: [{ productId: 0, quantity: 1 }], notes: "", status: "PENDIENTE" })
   }
 
   const addProductRow = () => {
@@ -82,6 +85,33 @@ export default function Orders() {
     setForm({ ...form, items: newItems })
   }
 
+  const handleEditClick = (order: Order) => {
+    setEditingId(order.id || null)
+    setForm({
+      customerId: order.customerId,
+      items: order.items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity
+      })),
+      notes: order.notes || "",
+      status: order.status || "PENDIENTE"
+    })
+    setOpen(true)
+  }
+
+  const getStatusStyle = (status?: OrderStatus) => {
+    switch (status) {
+      case "PENDIENTE":
+        return { label: "Pendiente", className: "bg-amber-50 text-amber-600 border border-amber-200/50", icon: AlertCircle }
+      case "SERVIDO":
+        return { label: "Servido", className: "bg-blue-50 text-blue-600 border border-blue-200/50", icon: CheckCircle2 }
+      case "PAGADO":
+        return { label: "Pagado", className: "bg-emerald-50 text-emerald-600 border border-emerald-200/50", icon: CheckCircle2 }
+      default:
+        return { label: "Pendiente", className: "bg-amber-50 text-amber-600 border border-amber-200/50", icon: AlertCircle }
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.customerId) {
@@ -94,15 +124,25 @@ export default function Orders() {
       return
     }
     try {
-      await api.post<Order>("/orders", form)
-      toast.success("Orden creada")
+      if (editingId) {
+        await api.put<Order>(`/orders/${editingId}`, form)
+        toast.success("Orden actualizada con éxito")
+      } else {
+        await api.post<Order>("/orders", form)
+        toast.success("Orden creada con éxito")
+      }
       setOpen(false)
       resetForm()
+      setEditingId(null)
       fetchOrders()
     } catch {
-      toast.error("Error al guardar orden")
+      toast.error(editingId ? "Error al actualizar orden" : "Error al guardar orden")
     }
   }
+
+  const filteredOrders = statusFilter === "TODAS"
+    ? orders
+    : orders.filter(order => order.status === statusFilter)
 
   const handleDeleteOrder = async (orderId?: number) => {
     if (!orderId) {
@@ -139,16 +179,32 @@ export default function Orders() {
           </p>
         </div>
 
-        <Dialog open={open} onOpenChange={(v) => { if (!v) resetForm(); setOpen(v) }}>
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center w-full sm:w-auto">
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Filtro</Label>
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value as "TODAS" | OrderStatus)}
+              className="h-12 font-bold text-xs px-4 rounded-2xl border border-slate-200 focus:border-primary transition-all bg-slate-50/50 focus:bg-white outline-none w-full sm:w-55 appearance-none cursor-pointer"
+            >
+              <option value="TODAS">Todas las órdenes</option>
+              <option value="PENDIENTE">Pendiente</option>
+              <option value="SERVIDO">Servido</option>
+              <option value="PAGADO">Pagado</option>
+            </select>
+          </div>
+        </div>
+
+        <Dialog open={open} onOpenChange={(v) => { if (!v) { resetForm(); setEditingId(null); } setOpen(v) }}>
           <DialogTrigger asChild>
             <Button className="rounded-2xl font-black h-12 sm:h-14 px-6 sm:px-8 shadow-lg shadow-primary/20 bg-primary text-primary-foreground hover:scale-[1.02] transition-all duration-300 w-full sm:w-auto uppercase tracking-wider text-xs border-transparent hover:border-transparent">
               <Plus className="mr-2 h-4 w-4 stroke-[3px]" /> NUEVA ORDEN
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-3xl max-w-md p-5 sm:p-8 border border-slate-100 max-h-[90vh] overflow-y-auto w-[calc(100%-2rem)] sm:w-full">
+          <DialogContent className="rounded-3xl w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] lg:w-[min(1280px,96vw)] p-5 sm:p-8 border border-slate-100 max-h-[90vh] overflow-y-auto lg:max-h-[86vh] lg:overflow-y-auto">
             <DialogHeader className="mb-4">
               <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-slate-800 flex items-center gap-2">
-                Nueva Orden
+                {editingId ? "Editar Orden" : "Nueva Orden"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -169,6 +225,20 @@ export default function Orders() {
                 </select>
               </div>
 
+              <div className="space-y-2">
+                <Label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Estado *</Label>
+                <select
+                  value={form.status || "PENDIENTE"}
+                  onChange={e => setForm({ ...form, status: e.target.value as OrderStatus })}
+                  className="h-14 font-bold text-sm px-4 rounded-2xl border border-slate-200 focus:border-primary transition-all bg-slate-50/50 focus:bg-white outline-none w-full appearance-none cursor-pointer"
+                  required
+                >
+                  <option value="PENDIENTE">Pendiente</option>
+                  <option value="SERVIDO">Servido</option>
+                  <option value="PAGADO">Pagado</option>
+                </select>
+              </div>
+
               {/* Multi-product selection block */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
@@ -183,7 +253,7 @@ export default function Orders() {
                   </Button>
                 </div>
 
-                <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
+                <div className="space-y-3 max-h-65 overflow-y-auto pr-1">
                   {form.items.map((item, index) => (
                     <div key={index} className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center bg-slate-50/50 p-3 sm:p-2 rounded-2xl border border-slate-200 font-sans">
                       {/* Product Selector */}
@@ -195,11 +265,15 @@ export default function Orders() {
                           required
                         >
                           <option value="" disabled>Seleccione producto...</option>
-                          {products.map(p => (
-                            <option key={p.id} value={p.id}>
-                              {p.name.toUpperCase()} (${p.price.toLocaleString("es-CO")})
-                            </option>
-                          ))}
+                          {products.map(p => {
+                            const isSelected = item.productId === p.id;
+                            if (p.available === false && !isSelected) return null;
+                            return (
+                              <option key={p.id} value={p.id} disabled={p.available === false}>
+                                {p.name.toUpperCase()} (${p.price.toLocaleString("es-CO")}){p.available === false ? " (NO DISPONIBLE)" : ""}
+                              </option>
+                            );
+                          })}
                         </select>
                       </div>
 
@@ -207,14 +281,22 @@ export default function Orders() {
                       <div className="flex gap-2 items-center justify-between sm:justify-start">
                         <div className="flex items-center gap-1.5 flex-1 sm:flex-initial">
                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest sm:hidden">CANT:</span>
-                          <Input 
-                            type="number" 
-                            min="1"
-                            value={item.quantity} 
-                            onChange={e => updateProductRow(index, "quantity", Math.max(1, +e.target.value))} 
-                            className="h-10 w-16 font-black text-xs px-2 rounded-xl border border-slate-200 focus:border-primary transition-all bg-white text-center outline-none flex-1 sm:flex-none"
-                            required 
-                          />
+                          <Select
+                            value={String(item.quantity)}
+                            onValueChange={value => updateProductRow(index, "quantity", Math.max(1, Number(value)))}
+                            required
+                          >
+                            <SelectTrigger className="h-8 w-12 font-black text-[10px] px-1.5 rounded-lg border border-slate-200 bg-white text-center outline-none flex-1 sm:flex-none">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-36">
+                              {Array.from({ length: 20 }, (_, i) => i + 1).map(qty => (
+                                <SelectItem key={qty} value={String(qty)} className="text-[10px]">
+                                  {qty}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         {form.items.length > 1 && (
@@ -244,7 +326,7 @@ export default function Orders() {
                 return (
                   <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4 space-y-2 animate-in fade-in zoom-in-95 duration-200 text-left font-sans">
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 pl-0.5">Resumen de Compra</div>
-                    <div className="space-y-1.5 max-h-[100px] overflow-y-auto pr-1">
+                    <div className="space-y-1.5 max-h-25 overflow-y-auto pr-1">
                       {selectedItems.map((item, index) => {
                         const prod = products.find(p => p.id === item.productId);
                         if (!prod) return null;
@@ -275,7 +357,7 @@ export default function Orders() {
                 />
               </div>
               <Button type="submit" className="w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all duration-300 border-transparent hover:border-transparent">
-                CREAR ORDEN
+                {editingId ? "GUARDAR CAMBIOS" : "CREAR ORDEN"}
               </Button>
             </form>
           </DialogContent>
@@ -294,8 +376,9 @@ export default function Orders() {
           {/* Card view for mobile/tablet */}
           <div className="block lg:hidden space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {orders.map(o => {
-                const isPending = o.status === "PENDIENTE" || o.status === "PENDING";
+              {filteredOrders.map(o => {
+                const statusStyle = getStatusStyle(o.status as OrderStatus)
+                const StatusIcon = statusStyle.icon
                 return (
                   <Card 
                     key={o.id}
@@ -310,13 +393,9 @@ export default function Orders() {
                         <span className="text-md font-black uppercase tracking-tight text-slate-700">Orden #{o.id}</span>
                       </div>
                       
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                        isPending 
-                          ? "bg-amber-50 text-amber-600 border border-amber-200/50" 
-                          : "bg-emerald-50 text-emerald-600 border border-emerald-200/50"
-                      }`}>
-                        {isPending ? <AlertCircle className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
-                        {o.status}
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${statusStyle.className}`}>
+                        <StatusIcon className="h-3 w-3" />
+                        {statusStyle.label}
                       </span>
                     </div>
 
@@ -333,11 +412,11 @@ export default function Orders() {
                         </div>
 
                         {/* Notes Info */}
-                        <div className="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100/50 shadow-inner min-h-[64px]">
+                        <div className="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100/50 shadow-inner min-h-16">
                           <ClipboardList className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                           <div className="flex flex-col">
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Notas / Observaciones</span>
-                            <span className="text-xs text-slate-500 font-medium break-words">
+                            <span className="text-xs text-slate-500 font-medium wrap-break-word">
                               {o.notes || <span className="text-slate-300 italic">Ninguna</span>}
                             </span>
                           </div>
@@ -353,19 +432,30 @@ export default function Orders() {
                           <span className="text-lg font-black text-primary">${o.totalAmount?.toLocaleString("es-CO") || 0}</span>
                         </div>
                         
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          disabled={deletingId === o.id}
-                          onClick={() => handleDeleteOrder(o.id)}
-                          className="h-10 w-10 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 hover:border-rose-100 transition-all cursor-pointer shrink-0"
-                        >
-                          {deletingId === o.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => handleEditClick(o)}
+                            className="h-10 w-10 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl border border-slate-100 hover:border-blue-100 transition-all cursor-pointer shrink-0"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            disabled={deletingId === o.id}
+                            onClick={() => handleDeleteOrder(o.id)}
+                            className="h-10 w-10 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 hover:border-rose-100 transition-all cursor-pointer shrink-0"
+                          >
+                            {deletingId === o.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -373,11 +463,11 @@ export default function Orders() {
               })}
             </div>
 
-            {orders.length === 0 && (
+            {filteredOrders.length === 0 && (
               <div className="text-center py-24 bg-white rounded-3xl border border-slate-100 shadow-sm">
                 <div className="flex flex-col items-center gap-3">
                   <ShoppingCart className="h-10 w-10 text-slate-300 stroke-[1.5]" />
-                  <span className="text-sm font-medium text-slate-400">No hay transacciones registradas actualmente.</span>
+                  <span className="text-sm font-medium text-slate-400">No hay órdenes para este filtro.</span>
                 </div>
               </div>
             )}
@@ -399,8 +489,9 @@ export default function Orders() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {orders.map(o => {
-                      const isPending = o.status === "PENDIENTE" || o.status === "PENDING"
+                    {filteredOrders.map(o => {
+                      const statusStyle = getStatusStyle(o.status as OrderStatus)
+                      const StatusIcon = statusStyle.icon
                       return (
                         <TableRow key={o.id} className="hover:bg-slate-50/50 transition-colors group border-b border-slate-100/60">
                           <TableCell className="font-black text-xs text-slate-400 py-5 pl-8">#{o.id}</TableCell>
@@ -421,48 +512,46 @@ export default function Orders() {
                             {o.notes || <span className="text-slate-300 italic">Ninguna</span>}
                           </TableCell>
                           <TableCell className="py-5 pr-8">
-                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                              isPending 
-                                ? "bg-amber-50 text-amber-600 border border-amber-200/50" 
-                                : "bg-emerald-50 text-emerald-600 border border-emerald-200/50"
-                            }`}>
-                              {isPending ? (
-                                <>
-                                  <AlertCircle className="h-3 w-3" />
-                                  {o.status}
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle2 className="h-3 w-3" />
-                                  {o.status}
-                                </>
-                              )}
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${statusStyle.className}`}>
+                              <StatusIcon className="h-3 w-3" />
+                              {statusStyle.label}
                             </span>
                           </TableCell>
                           <TableCell className="py-5 pr-8 text-right">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              disabled={deletingId === o.id}
-                              onClick={() => handleDeleteOrder(o.id)}
-                              className="h-9 w-9 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
-                            >
-                              {deletingId === o.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => handleEditClick(o)}
+                                className="h-9 w-9 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                disabled={deletingId === o.id}
+                                onClick={() => handleDeleteOrder(o.id)}
+                                className="h-9 w-9 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
+                              >
+                                {deletingId === o.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       )
                     })}
-                    {orders.length === 0 && (
+                    {filteredOrders.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={6} className="py-16 text-center text-slate-400 font-medium text-sm">
                           <div className="flex flex-col items-center gap-3">
                             <ShoppingCart className="h-10 w-10 text-slate-300 stroke-[1.5]" />
-                            <span>No hay transacciones registradas actualmente.</span>
+                            <span>No hay órdenes para este filtro.</span>
                           </div>
                         </TableCell>
                       </TableRow>
