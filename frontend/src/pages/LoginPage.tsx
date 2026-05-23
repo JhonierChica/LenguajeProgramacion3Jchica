@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, User as UserIcon, Lock, Sparkles, Coffee } from 'lucide-react';
+import { LogIn, User as UserIcon, Lock, Coffee } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
