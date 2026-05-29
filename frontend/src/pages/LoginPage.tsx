@@ -15,7 +15,7 @@ export const LoginPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       await login({ username, password });
-    } catch (err) {
+    } catch {
       // El error ya lo maneja el toast en el context
     } finally {
       setIsSubmitting(false);
@@ -43,7 +43,7 @@ export const LoginPage: React.FC = () => {
               <Coffee className="w-8 h-8 text-blue-400" />
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">
-              Tienda <span className="bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">Uniremington</span>
+              Tienda <span className="bg-linear-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">Uniremington</span>
             </h1>
             <p className="text-sm text-slate-400">
               Ingresa tus credenciales para acceder al sistema
@@ -96,7 +96,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40 transition-all duration-300 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full py-3.5 px-4 bg-linear-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40 transition-all duration-300 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

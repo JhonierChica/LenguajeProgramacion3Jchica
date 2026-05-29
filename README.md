@@ -2,6 +2,27 @@
 
 Sistema web full-stack para gestión de pedidos, clientes y productos de una tienda.
 
+## 🛡️ Mejoras de Seguridad (OWASP Hardening)
+
+El proyecto fue sometido a un riguroso análisis de vulnerabilidades web (Nikto/Nmap), tras el cual se implementaron las siguientes medidas de seguridad para proteger tanto la API como el cliente web:
+
+### 1. Blindaje del Backend (Spring Security)
+Se configuró `SecurityConfig.java` inyectando nativamente las cabeceras de seguridad recomendadas por OWASP:
+- **HSTS (Strict-Transport-Security)**: Fuerza las conexiones seguras (HTTPS) evitando ataques tipo SSL Stripping.
+- **CSP (Content-Security-Policy)**: Restringe desde dónde se pueden cargar scripts y estilos, mitigando ataques de Cross-Site Scripting (XSS).
+- **X-Frame-Options (DENY)**: Evita que la aplicación sea embebida en *iframes* de sitios de terceros (mitigación de Clickjacking).
+- **X-Content-Type-Options (nosniff)**: Obliga al navegador a respetar el Content-Type original, previniendo inyección de código mediante MIME-Sniffing.
+- **Permissions-Policy**: Restringe el acceso a APIs sensibles del navegador como cámara, micrófono y geolocalización.
+
+### 2. Protección del Frontend (Render Static Sites)
+Dado que el frontend (React/Vite) se sirve de manera independiente mediante un *Static Site* en Render, se creó el archivo `public/_headers`.
+- Vite transfiere este archivo durante el proceso de *build* (`dist/_headers`), y Render lo interpreta para añadir cabeceras estrictas (como CSP y X-Frame-Options) en cada respuesta HTTP del frontend.
+
+### 3. Falsos Positivos Resueltos
+El reporte original alertaba sobre un posible XSS en `/user.php` y puertos abiertos por Cloudflare (80, 8443). 
+- Al ser un backend Java/Spring Boot, los escaneos genéricos orientados a PHP (`user.php`) devuelven un seguro código `401/404`.
+- Los puertos detectados y las rutas como `/cdn-cgi/` pertenecen a la infraestructura proxy de Cloudflare y Render, no a nuestra aplicación. Con nuestras nuevas políticas estrictas (HSTS), garantizamos que la comunicación viaje cifrada a través de ellos.
+
 ## Tecnologías
 
 | Capa | Tecnología |
