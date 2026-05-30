@@ -37,7 +37,7 @@ public class SecurityConfig {
                                 .maxAgeInSeconds(31536000)
                         )
                         .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://*.onrender.com;")
+                                .policyDirectives("default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:")
                         )
                         .frameOptions(frameOptions -> frameOptions.deny())
                         .contentTypeOptions(contentTypeOptions -> {}) // Spring Security enables X-Content-Type-Options: nosniff by default

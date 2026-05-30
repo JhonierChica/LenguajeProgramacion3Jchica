@@ -1,192 +1,96 @@
 {
-  "scan_id": "1cdd5d12",
-  "target": "lenguajeprogramacion3jchica-3.onrender.com",
+  "scan_id": "26a336fd",
+  "target": "scan-agent-web:8080",
   "profile": "web",
-  "timestamp": "2026-05-29T18:56:46.040806",
+  "timestamp": "2026-05-30T17:50:24.209824",
   "catalog_sha256": "f03b26b8ba18648f4c434af67b5807fa275e5b2a0e116f2694342719ea82103b",
   "host_info": {
     "status": "activo",
-    "latency": "18 ms",
+    "latency": "N/A",
     "os": "Unknown",
     "os_cpe": ""
   },
   "ports": [
     {
-      "port": 80,
-      "protocol": "tcp",
-      "state": "open",
-      "service": "tcpwrapped",
-      "version": "|_http-server-header: cloudflare",
-      "product": "",
-      "extra_info": ""
-    },
-    {
-      "port": 443,
-      "protocol": "tcp",
-      "state": "open",
-      "service": "tcpwrapped",
-      "version": "|_http-vuln-cve2014-3704: ERROR: Script execution failed (use -d to debug)",
-      "product": "",
-      "extra_info": ""
-    },
-    {
       "port": 8080,
       "protocol": "tcp",
       "state": "open",
-      "service": "tcpwrapped",
-      "version": "| http-headers:",
-      "product": "",
-      "extra_info": ""
-    },
-    {
-      "port": 8443,
-      "protocol": "tcp",
-      "state": "open",
-      "service": "ssl/http",
-      "version": "Cloudflare http proxy",
+      "service": "http",
+      "version": "Uvicorn",
       "product": "",
       "extra_info": ""
     }
   ],
   "active_hosts": [
     {
-      "ip": "216.24.57.7",
-      "hostname": "lenguajeprogramacion3jchica-3.onrender.com",
-      "latency_ms": 12.0,
+      "ip": "172.20.0.2",
+      "hostname": "scan-agent-web",
+      "latency_ms": 0.1,
       "open_ports": [
-        {
-          "port": 80,
-          "protocol": "tcp",
-          "service": "tcpwrapped"
-        },
-        {
-          "port": 443,
-          "protocol": "tcp",
-          "service": "tcpwrapped"
-        },
         {
           "port": 8080,
           "protocol": "tcp",
-          "service": "tcpwrapped"
+          "service": "http"
         }
       ]
     }
   ],
   "http_headers": {
-    "Date": "Fri, 29 May 2026 16:56:45 GMT",
-    "Content-Type": "text/html; charset=utf-8",
-    "Content-Length": "86",
-    "Connection": "keep-alive",
-    "Location": "https://lenguajeprogramacion3jchica-3.onrender.com/",
-    "Age": "2022",
-    "cf-cache-status": "HIT",
-    "Vary": "accept-encoding",
-    "Server": "cloudflare",
-    "CF-RAY": "a03708c44eac5c64-MIA",
-    "alt-svc": "h3=\":443\"; ma=86400"
+    "date": "Sat, 30 May 2026 15:50:23 GMT",
+    "server": "uvicorn",
+    "allow": "GET",
+    "content-length": "31",
+    "content-type": "application/json"
   },
   "nikto_findings": [
-    "[011799] /: An alt-svc header was found which is advertising HTTP/3. The endpoint is: ':443'. Nikto cannot test HTTP/3 over QUIC. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/alt-svc",
-    "[999106] /: Cloudflare detected via cf-ray header. Recommend proxying via Burp or mitmproxy to avoid TLS fingerprint blocks. See: https://github.com/sullo/nikto/wiki/Using-a-Proxy",
+    "[013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP",
+    "[013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security",
     "[013587] /: Suggested security header missing: referrer-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy",
     "[013587] /: Suggested security header missing: permissions-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy",
     "[013587] /: Suggested security header missing: x-content-type-options. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options",
-    "[013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security",
-    "[013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP",
-    "[800264] /: cloudflare - Cloudflare detected via banner. Recommend proxying via Burp or mitmproxy to avoid TLS fingerprint blocks if not already proxying.",
-    "[000777] /user.php?op=confirmnewuser&module=NS-NewUser&uNikto=%22%3E%3Cimg%20src=%22javascript:alert(document.cookie);%22%3E&email=test@test.com: Post Nuke 0.7.2.3-Phoenix is vulnerable to Cross Site Scripting (XSS).",
-    "[999100] /scripts/..%c1%1c../winnt/system32/cmd.exe?/c+dir: Uncommon header(s) 'proxy-status' found, with contents: Cloudflare-Proxy;error=http_protocol_error.",
-    "[999986] /cdn-cgi/trace: Retrieved access-control-allow-origin header: *.",
-    "[007274] /cdn-cgi/trace: Cloudflare trace CGI found, which may leak some system information.",
+    "[999990] OPTIONS: Allowed HTTP Methods: GET .",
     "[007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options",
-    "[007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/"
+    "[007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/",
+    "[999986] /: Retrieved access-control-allow-origin header: *."
   ],
-  "directories": [],
+  "directories": [
+    "health               (Status: 200) [Size: 38]",
+    "static               (Status: 307) [Size: 0] [--> http://scan-agent-web:8080/static/]"
+  ],
   "nse_findings": [
     {
-      "script": "http-headers",
-      "output": "| http-headers: \n|   Date: Fri, 29 May 2026 16:39:04 GMT\n|   Content-Type: text/plain; charset=UTF-8\n|   Content-Length: 16\n|   Connection: close\n|   X-Frame-Options: SAMEORIGIN\n|   Referrer-Policy: same-origin\n|   Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0\n|   Expires: Thu, 01 Jan 1970 00:00:01 GMT\n|   Server: cloudflare\n|   CF-RAY: a036eedfb8afa4b9-MIA\n|   \n|_  (Request type: GET)\n|_http-vuln-cve2014-3704: ERROR: Script execution failed (u",
-      "filename": "nmap_nse_lenguajeprogramacion3jchica-3.onrender.com.txt"
+      "script": "http-methods",
+      "output": "| http-methods: \n|_  Supported Methods: GET\n",
+      "filename": "nmap_nse_scan-agent-web_8080.txt"
     },
     {
       "script": "http-headers",
-      "output": "| http-headers: \n|   Server: cloudflare\n|   Date: Fri, 29 May 2026 16:39:04 GMT\n|   Content-Type: text/html\n|   Content-Length: 253\n|   Connection: close\n|   CF-RAY: -\n|   \n|_  (Request type: GET)\n8080/tcp open  tcpwrapped\n",
-      "filename": "nmap_nse_lenguajeprogramacion3jchica-3.onrender.com.txt"
-    },
-    {
-      "script": "http-headers",
-      "output": "| http-headers: \n|   Date: Fri, 29 May 2026 16:39:04 GMT\n|   Content-Type: text/html; charset=UTF-8\n|   Content-Length: 221310\n|   Connection: close\n|   Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0\n|   Expires: Thu, 01 Jan 1970 00:00:01 GMT\n|   Referrer-Policy: same-origin\n|   X-Frame-Options: SAMEORIGIN\n|   Server: cloudflare\n|   CF-RAY: a036eedeba7be9f4-MIA\n|   alt-svc: h3=\":443\"; ma=86400\n|   \n|_  (Request type: GET)\n|_http-server-header: c",
-      "filename": "nmap_nse_lenguajeprogramacion3jchica-3.onrender.com.txt"
+      "output": "| http-headers: \n|   date: Sat, 30 May 2026 15:49:38 GMT\n|   server: uvicorn\n|   content-length: 75120\n|   content-type: text/html; charset=utf-8\n|   connection: close\n|   \n|_  (Request type: GET)\n|_http-server-header: uvicorn\n\nService detection performed. Please report any incorrect results at https://nmap.org/submit/ .\nNmap done: 1 IP address (1 host up) scanned in 12.96 seconds\n",
+      "filename": "nmap_nse_scan-agent-web_8080.txt"
     }
   ],
   "whatweb_findings": [
     {
-      "raw": "http://lenguajeprogramacion3jchica-3.onrender.com/ [301 Moved Permanently] Country[UNITED STATES][US], HTTPServer[cloudflare], IP[216.24.57.251], RedirectLocation[https://lenguajeprogramacion3jc",
-      "http_status": 301,
-      "technologies": [
-        {
-          "name": "RedirectLocation",
-          "version": "https://lenguajeprogramacion3jchica-3.onrender.com/"
-        }
-      ]
-    },
-    {
-      "raw": "https://lenguajeprogramacion3jchica-3.onrender.com/ [200 OK] Country[UNITED STATES][US], HTML5, HTTPServer[cloudflare], IP[216.24.57.251], Script[module], Strict-Transport-Securi",
+      "raw": "http://scan-agent-web:8080/ [200 OK] Country[RESERVED][ZZ], Frame, HTML5, HTTPServer[uvicorn], IP[172.20.0.2], Script, Title[Scan Agent Web - Interfaz de Escaneo de Segur",
       "http_status": 200,
-      "technologies": [
-        {
-          "name": "Strict-Transport-Security",
-          "version": "max-age=315360000; includeSubdomains; preload"
-        }
-      ]
+      "technologies": []
     }
   ],
   "waf_info": {
-    "detected": true,
-    "name": "\u001b[1;96mCloudflare (Cloudflare Inc.)\u001b[0m",
+    "detected": false,
+    "name": null,
     "raw": "\n                 ?              ,.   (   .      )        .      \"\n         __        ??          (\"     )  )'     ,'        )  . (`     '`\n    (___()'`;   ???          .; )  ' (( (\" )    ;(,     ((  (  ;)  \"  )\")\n    /,___ /`                 _\"., ,._'_.,)_(..,( . )_  _' )_') (. _..( ' )\n    \\\\   \\\\                 |____|____|____|____|____|____|____|____|____|\n\n                                ~ WAFW00F : v2.4.2 ~\n                    ~ Sniffing Web Application Firewalls since 2009 ~\n\n[*] Checkin"
   },
   "ssl_info": {},
   "vulnerabilities": [
     {
-      "vuln_id": "port_80",
-      "severity": "MEDIUM",
-      "title": "Puerto de riesgo medio expuesto: 80 - HTTP - Comunicación sin cifrado",
-      "description": "El puerto 80 (tcpwrapped) está abierto. HTTP - Comunicación sin cifrado.",
-      "port": 80,
-      "service": "tcpwrapped",
-      "version": "|_http-server-header: cloudflare",
-      "category": "infrastructure",
-      "recommendations": [
-        "Migrar a HTTPS (puerto 443) y configurar redirección automática de HTTP a HTTPS.",
-        "Implementar HSTS para forzar conexiones cifradas en futuros accesos.",
-        "Deshabilitar el puerto 80 o usarlo únicamente para redirigir a HTTPS."
-      ],
-      "cves": []
-    },
-    {
-      "vuln_id": "port_443",
-      "severity": "MEDIUM",
-      "title": "Puerto 443/tcp abierto (tcpwrapped)",
-      "description": "Se detectó el servicio tcpwrapped escuchando en el puerto 443.",
-      "port": 443,
-      "service": "tcpwrapped",
-      "version": "|_http-vuln-cve2014-3704: ERROR: Script execution failed (use -d to debug)",
-      "category": "infrastructure",
-      "recommendations": [
-        "Verificar que el servicio sea estrictamente necesario.",
-        "Mantener el software del servicio actualizado."
-      ],
-      "cves": []
-    },
-    {
       "vuln_id": "port_8080",
       "severity": "MEDIUM",
       "title": "Puerto de riesgo medio expuesto: 8080 - HTTP-ALT - Sin cifrado",
-      "description": "El puerto 8080 (tcpwrapped) está abierto. HTTP-ALT - Sin cifrado.",
+      "description": "El puerto 8080 (http) está abierto. HTTP-ALT - Sin cifrado.",
       "port": 8080,
-      "service": "tcpwrapped",
-      "version": "| http-headers:",
+      "service": "http",
+      "version": "Uvicorn",
       "category": "infrastructure",
       "recommendations": [
         "Configurar HTTPS en el servidor que escucha en este puerto.",
@@ -196,27 +100,11 @@
       "cves": []
     },
     {
-      "vuln_id": "port_8443",
-      "severity": "MEDIUM",
-      "title": "Puerto de riesgo medio expuesto: 8443 - HTTPS-ALT - Puerto alternativo HTTPS",
-      "description": "El puerto 8443 (ssl/http) está abierto. HTTPS-ALT - Puerto alternativo HTTPS.",
-      "port": 8443,
-      "service": "ssl/http",
-      "version": "Cloudflare http proxy",
-      "category": "infrastructure",
-      "recommendations": [
-        "Verificar la configuración TLS — asegurar TLS 1.2+ y deshabilitar versiones débiles.",
-        "Verificar la cadena de certificados y su fecha de expiración.",
-        "Considerar consolidar en el puerto estándar 443 para simplificar la gestión."
-      ],
-      "cves": []
-    },
-    {
       "vuln_id": "header_strict_transport_security",
       "severity": "HIGH",
       "title": "Cabecera HSTS ausente (Strict-Transport-Security)",
       "description": "La cabecera HTTP Strict-Transport-Security no está configurada. Esto permite ataques de degradación de protocolo (SSL stripping) y robo de cookies en tránsito.",
-      "port": 80,
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-headers",
@@ -232,7 +120,7 @@
       "severity": "HIGH",
       "title": "Política de Seguridad de Contenido ausente (CSP)",
       "description": "La cabecera Content-Security-Policy no está definida. Sin CSP, la aplicación es vulnerable a ataques de Cross-Site Scripting (XSS) e inyección de contenido malicioso.",
-      "port": 80,
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-headers",
@@ -249,7 +137,7 @@
       "severity": "MEDIUM",
       "title": "Protección contra Clickjacking ausente (X-Frame-Options)",
       "description": "Sin la cabecera X-Frame-Options, la aplicación puede ser embebida en iframes de sitios maliciosos, habilitando ataques de clickjacking y robo de credenciales.",
-      "port": 80,
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-headers",
@@ -265,7 +153,7 @@
       "severity": "MEDIUM",
       "title": "Protección contra MIME-Sniffing ausente (X-Content-Type-Options)",
       "description": "Sin esta cabecera, los navegadores pueden interpretar archivos con un tipo MIME diferente al declarado, lo que puede permitir ataques de ejecución de contenido.",
-      "port": 80,
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-headers",
@@ -280,7 +168,7 @@
       "severity": "LOW",
       "title": "Filtro XSS del navegador no configurado (X-XSS-Protection)",
       "description": "Esta cabecera activa el filtro XSS integrado en navegadores legacy. Su ausencia puede facilitar ataques XSS reflejados en clientes con navegadores antiguos.",
-      "port": 80,
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-headers",
@@ -295,7 +183,7 @@
       "severity": "LOW",
       "title": "Política de Referrer no configurada (Referrer-Policy)",
       "description": "Sin esta cabecera, el navegador puede enviar la URL completa como referrer a sitios externos, filtrando parámetros sensibles de la URL como tokens o IDs de sesión.",
-      "port": 80,
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-headers",
@@ -310,7 +198,7 @@
       "severity": "LOW",
       "title": "Política de Permisos del navegador ausente (Permissions-Policy)",
       "description": "Sin esta cabecera, no se controla el acceso de la página a APIs sensibles del navegador como cámara, micrófono o geolocalización.",
-      "port": 80,
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-headers",
@@ -322,111 +210,17 @@
       "cves": []
     },
     {
-      "vuln_id": "nikto_low_011799_an_alt_svc_header_was_found",
+      "vuln_id": "nikto_low_999990_options_allowed_http_methods",
       "severity": "LOW",
-      "title": "Hallazgo Nikto: [011799] /: An alt-svc header was found which is advertising HTTP/3. The endpoin",
-      "description": "El servidor está exponiendo información que podría ser aprovechada por un atacante para planificar un ataque más dirigido. Detalle: [011799] /: An alt-svc header was found which is advertising HTTP/3. The endpoint is: ':443'. Nikto cannot test HTTP/3 over QUIC. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/alt-svc",
-      "port": 80,
-      "service": "http",
-      "version": "",
-      "category": "web-nikto",
-      "recommendations": [
-        "Revisar la configuración del servidor para minimizar la información expuesta en respuestas HTTP.",
-        "Aplicar el principio de mínima exposición: no revelar versiones, rutas internas ni mensajes de error detallados.",
-        "Consultar la guía OWASP de configuración segura del servidor web."
-      ],
-      "cves": []
-    },
-    {
-      "vuln_id": "nikto_low_999106_cloudflare_detected_via_cf_r",
-      "severity": "LOW",
-      "title": "Hallazgo Nikto: [999106] /: Cloudflare detected via cf-ray header. Recommend proxying via Burp o",
-      "description": "Nikto reportó el siguiente hallazgo de seguridad en el servidor web: [999106] /: Cloudflare detected via cf-ray header. Recommend proxying via Burp or mitmproxy to avoid TLS fingerprint blocks. See: https://github.com/sullo/nikto/wiki/Using-a-Proxy",
-      "port": 80,
+      "title": "Hallazgo Nikto: [999990] OPTIONS: Allowed HTTP Methods: GET .",
+      "description": "Nikto reportó el siguiente hallazgo de seguridad en el servidor web: [999990] OPTIONS: Allowed HTTP Methods: GET .",
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-nikto",
       "recommendations": [
         "Investigar este hallazgo para determinar su impacto real en el sistema.",
         "Consultar la documentación del servidor web y las guías de hardening de OWASP para mitigarlo."
-      ],
-      "cves": []
-    },
-    {
-      "vuln_id": "nikto_low_800264_cloudflare_cloudflare_dete",
-      "severity": "LOW",
-      "title": "Hallazgo Nikto: [800264] /: cloudflare - Cloudflare detected via banner. Recommend proxying via ",
-      "description": "Nikto reportó el siguiente hallazgo de seguridad en el servidor web: [800264] /: cloudflare - Cloudflare detected via banner. Recommend proxying via Burp or mitmproxy to avoid TLS fingerprint blocks if not already proxying.",
-      "port": 80,
-      "service": "http",
-      "version": "",
-      "category": "web-nikto",
-      "recommendations": [
-        "Investigar este hallazgo para determinar su impacto real en el sistema.",
-        "Consultar la documentación del servidor web y las guías de hardening de OWASP para mitigarlo."
-      ],
-      "cves": []
-    },
-    {
-      "vuln_id": "nikto_high_000777_user_php_op_confirmnewuser_mod",
-      "severity": "HIGH",
-      "title": "Hallazgo Nikto: [000777] /user.php?op=confirmnewuser&module=NS-NewUser&uNikto=%22%3E%3Cimg%20src",
-      "description": "Posible vulnerabilidad de Cross-Site Scripting (XSS). Un atacante podría inyectar código JavaScript que se ejecuta en el navegador de otros usuarios, permitiendo robo de cookies, suplantación de identidad o redireccionamiento malicioso. Detalle: [000777] /user.php?op=confirmnewuser&module=NS-NewUser&uNikto=%22%3E%3Cimg%20src=%22javascript:alert(document.cookie);%22%3E&email=test@test.com: Post Nuke 0.7.2.3-Phoenix is vulnerable to Cross Site Scripting (XSS).",
-      "port": 80,
-      "service": "http",
-      "version": "",
-      "category": "web-nikto",
-      "recommendations": [
-        "Escapar todos los datos de entrada antes de incluirlos en el HTML de respuesta.",
-        "Implementar una política Content-Security-Policy (CSP) que restrinja la ejecución de scripts inline.",
-        "Usar funciones de escape según el contexto: HTML, atributos, JavaScript o URL."
-      ],
-      "cves": []
-    },
-    {
-      "vuln_id": "nikto_low_999100_scripts_c1_1c_winnt_syste",
-      "severity": "LOW",
-      "title": "Hallazgo Nikto: [999100] /scripts/..%c1%1c../winnt/system32/cmd.exe?/c+dir: Uncommon header(s) '",
-      "description": "El servidor incluye cabeceras HTTP no estándar que revelan información sobre la organización o el sistema. Aunque no es una vulnerabilidad crítica, estas cabeceras pueden usarse para reconocimiento. Detalle: [999100] /scripts/..%c1%1c../winnt/system32/cmd.exe?/c+dir: Uncommon header(s) 'proxy-status' found, with contents: Cloudflare-Proxy;error=http_protocol_error.",
-      "port": 80,
-      "service": "http",
-      "version": "",
-      "category": "web-nikto",
-      "recommendations": [
-        "Revisar todas las cabeceras de respuesta HTTP y eliminar las que no sean necesarias.",
-        "Aplicar el principio de mínima exposición en las respuestas del servidor."
-      ],
-      "cves": []
-    },
-    {
-      "vuln_id": "nikto_medium_999986_cdn_cgi_trace_retrieved_acces",
-      "severity": "MEDIUM",
-      "title": "Hallazgo Nikto: [999986] /cdn-cgi/trace: Retrieved access-control-allow-origin header: *.",
-      "description": "El servidor tiene CORS configurado con origen comodín ('*'). Cualquier dominio del mundo puede realizar peticiones autenticadas a esta API y leer las respuestas, lo que permite ataques de tipo Cross-Origin Request Forgery (CORS abuse). Detalle: [999986] /cdn-cgi/trace: Retrieved access-control-allow-origin header: *.",
-      "port": 80,
-      "service": "http",
-      "version": "",
-      "category": "web-nikto",
-      "recommendations": [
-        "Reemplazar '*' por el origen exacto de la aplicación frontend: Access-Control-Allow-Origin: https://tu-dominio.com.",
-        "Nunca usar '*' junto con Access-Control-Allow-Credentials: true — el navegador lo bloquea por spec.",
-        "Mantener una lista blanca de orígenes permitidos y validarla en el servidor."
-      ],
-      "cves": []
-    },
-    {
-      "vuln_id": "nikto_low_007274_cdn_cgi_trace_cloudflare_trac",
-      "severity": "LOW",
-      "title": "Hallazgo Nikto: [007274] /cdn-cgi/trace: Cloudflare trace CGI found, which may leak some system ",
-      "description": "El servidor está exponiendo información que podría ser aprovechada por un atacante para planificar un ataque más dirigido. Detalle: [007274] /cdn-cgi/trace: Cloudflare trace CGI found, which may leak some system information.",
-      "port": 80,
-      "service": "http",
-      "version": "",
-      "category": "web-nikto",
-      "recommendations": [
-        "Revisar la configuración del servidor para minimizar la información expuesta en respuestas HTTP.",
-        "Aplicar el principio de mínima exposición: no revelar versiones, rutas internas ni mensajes de error detallados.",
-        "Consultar la guía OWASP de configuración segura del servidor web."
       ],
       "cves": []
     },
@@ -435,7 +229,7 @@
       "severity": "MEDIUM",
       "title": "Hallazgo Nikto: [007342] /: X-Frame-Options header is deprecated and was replaced with the Conte",
       "description": "El software del servidor está desactualizado. Las versiones antiguas contienen vulnerabilidades conocidas sin parche que pueden ser explotadas remotamente. Detalle: [007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options",
-      "port": 80,
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-nikto",
@@ -451,7 +245,7 @@
       "severity": "MEDIUM",
       "title": "Hallazgo Nikto: [007352] /: The X-Content-Type-Options header is not set. This could allow the u",
       "description": "Nikto reportó el siguiente hallazgo de seguridad en el servidor web: [007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/",
-      "port": 80,
+      "port": 8080,
       "service": "http",
       "version": "",
       "category": "web-nikto",
@@ -460,12 +254,27 @@
         "Consultar la documentación del servidor web y las guías de hardening de OWASP para mitigarlo."
       ],
       "cves": []
+    },
+    {
+      "vuln_id": "nikto_medium_999986_retrieved_access_control_all",
+      "severity": "MEDIUM",
+      "title": "Hallazgo Nikto: [999986] /: Retrieved access-control-allow-origin header: *.",
+      "description": "El servidor tiene CORS configurado con origen comodín ('*'). Cualquier dominio del mundo puede realizar peticiones autenticadas a esta API y leer las respuestas, lo que permite ataques de tipo Cross-Origin Request Forgery (CORS abuse). Detalle: [999986] /: Retrieved access-control-allow-origin header: *.",
+      "port": 8080,
+      "service": "http",
+      "version": "",
+      "category": "web-nikto",
+      "recommendations": [
+        "Reemplazar '*' por el origen exacto de la aplicación frontend: Access-Control-Allow-Origin: https://tu-dominio.com.",
+        "Nunca usar '*' junto con Access-Control-Allow-Credentials: true — el navegador lo bloquea por spec.",
+        "Mantener una lista blanca de orígenes permitidos y validarla en el servidor."
+      ],
+      "cves": []
     }
   ],
-  "risk_score": 164,
-  "risk_level": "CRITICAL",
+  "risk_score": 97,
+  "risk_level": "HIGH",
   "recommendations": [
-    "URGENTE: Se detectaron vulnerabilidades críticas. Tomar acción inmediata antes de continuar operando el sistema en producción.",
     "Planificar la remediación de vulnerabilidades de severidad alta en un plazo máximo de 30 días.",
     "Implementar una política Content-Security-Policy (CSP) estricta para prevenir ataques XSS e inyección de contenido.",
     "Habilitar HTTPS y configurar la cabecera HSTS (Strict-Transport-Security) para forzar conexiones cifradas.",
@@ -478,14 +287,14 @@
     "Implementar monitoreo continuo y alertas tempranas para detectar actividad anómala en los sistemas."
   ],
   "summary": {
-    "total_ports": 4,
-    "open_ports": 4,
+    "total_ports": 1,
+    "open_ports": 1,
     "critical_findings": 0,
-    "high_findings": 3,
-    "medium_findings": 9,
-    "low_findings": 8,
+    "high_findings": 2,
+    "medium_findings": 6,
+    "low_findings": 4,
     "info_findings": 0,
-    "web_findings": 16,
+    "web_findings": 11,
     "api_findings": 0
   }
 }
