@@ -49,10 +49,10 @@ export const LoginPage: React.FC = () => {
               Ingresa tus credenciales para acceder al sistema
             </p>
 
-            <p>Group </p>
-            <p>Vanessa Benitez</p>
-            <p>Jhonier Chica</p>
-            <p>Santiago Anaya</p>
+            <p className="text-sm text-slate-400">Grupo</p>
+            <p className="text-sm text-slate-400">Vanessa Benitez</p>
+            <p className="text-sm text-slate-400">Jhonier Chica</p>
+            <p className="text-sm text-slate-400">Santiago Anaya</p>
           </div>
 
 
