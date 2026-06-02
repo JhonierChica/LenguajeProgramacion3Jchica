@@ -36,7 +36,7 @@ export const LoginPage: React.FC = () => {
       <div className="w-full max-w-md p-2 z-10 animate-in fade-in zoom-in-95 duration-500">
         {/* Contenedor Glassmorphism */}
         <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-8 shadow-2xl shadow-slate-950/50">
-          
+
           {/* Cabecera */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center p-3.5 bg-blue-500/10 rounded-2xl border border-blue-500/20 mb-4 animate-bounce duration-1000">
@@ -48,7 +48,13 @@ export const LoginPage: React.FC = () => {
             <p className="text-sm text-slate-400">
               Ingresa tus credenciales para acceder al sistema
             </p>
+
+            <p>Group </p>
+            <p>Vanessa Benitez</p>
+            <p>Jhonier Chica</p>
+            <p>Santiago Anaya</p>
           </div>
+
 
           {/* Formulario */}
           <form onSubmit={handleSubmit} className="space-y-5">
