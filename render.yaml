@@ -1,0 +1,90 @@
+# =============================================================================
+# render.yaml — Infrastructure as Code for lenguajesP3
+# https://render.com/docs/blueprint-spec
+#
+# Convierte los servicios configurados por dashboard a IaC declarativo.
+# Stack: Spring Boot 4.0.6 (Java 25) sobre Docker + Vite/React 19 (static).
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # BACKEND — Spring Boot REST API (Docker)
+  # Render no soporta runtime nativo de Java, hay que ir con Docker.
+  # El Dockerfile ya existe en backend/ y está multi-stage.
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: lenguajeprogramacion3-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # Secrets — sync:false hace que Render los pida en el dashboard
+      # al crear el Blueprint (NO se commitean valores a git).
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+
+  # ---------------------------------------------------------------------------
+  # FRONTEND — Vite + React (static site)
+  # staticPublishPath es RELATIVO AL REPO ROOT, por eso "./frontend/dist"
+  # (no "./dist"). El buildCommand corre en repo root y hace "cd frontend".
+  # buildFilter hace que Render solo redespliegue cuando cambia frontend/**.
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: lenguajeprogramacion3-frontend
+    runtime: static
+    buildCommand: cd frontend && corepack enable && pnpm install && pnpm run build
+    staticPublishPath: ./frontend/dist
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - frontend/**
+
+    headers:
+      # =======================================================================
+      # SECURITY HEADERS — OWASP Secure Headers Project
+      # Cubre los 6 hallazgos del scanner Nikto + Cloudflare.
+      # =======================================================================
+
+      # --- HIGH: Content-Security-Policy ---
+      # style-src/font-src permiten Google Fonts (la UI usa Outfit).
+      # connect-src permite el backend en *.onrender.com (mismo Render).
+      # frame-ancestors 'none' reemplaza X-Frame-Options a nivel CSP.
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+
+      # --- MEDIUM: X-Frame-Options (clickjacking) ---
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+
+      # --- MEDIUM: X-Content-Type-Options (MIME-sniffing) ---
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+
+      # --- LOW: Referrer-Policy (filtracion de URL) ---
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+
+      # --- LOW: Permissions-Policy (APIs sensibles del navegador) ---
+      - path: /*
+        name: Permissions-Policy
+        value: "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+
+      # --- HSTS: refuerza la conexion HTTPS ---
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=315360000; includeSubdomains; preload
